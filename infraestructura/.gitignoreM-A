@@ -1,0 +1,15 @@
+# Archivos generados por Airflow/Python
+__pycache__/
+*.pyc
+.env
+*.db 
+
+# Logs y bases de datos
+logs/
+postgres/
+spark-warehouse/
+.DS_Store
+o
+^O
+x
+

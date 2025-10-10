@@ -1,0 +1,9 @@
+# Dependencias necesarias para ejecutar el script de transformacion (PySpark)
+pyspark==3.4.1
+
+# Dependencia necesaria para manejar fechas en el DAG
+pendulum==2.1.2
+
+# Paquete de Airflow. Se incluye si se requiere para linting o para operadores específicos
+# La version debe coincidir con la de tu contenedor Docker para evitar conflictos
+apache-airflow==2.8.4

@@ -1,0 +1,16 @@
+# Ignorar entornos virtuales (si usaste uno)
+*.venv
+beam_env/
+.env
+
+# Ignorar logs, bases de datos y caché
+__pycache__/
+*.pyc
+logs/
+postgres/
+spark-warehouse/
+.DS_Store
+
+# Ignorar archivos de configuración de Airflow sensibles (CRÍTICO)
+infraestructura/config/
+infraestructura/airflow.cfg

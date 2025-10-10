@@ -1,0 +1,38 @@
+name: CI/CD Airflow DAGs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_and_deploy_dag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 1. Validación de Sintaxis (CI)
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install Airflow Dependencies
+        run: pip install apache-airflow
+
+      - name: Check Airflow DAGs
+        run: airflow dags check ./dags/etl_data_lake_dag.py # Valida la sintaxis del DAG
+        
+      # 2. Despliegue (CD - si la validación es exitosa)
+      - name: Deploy DAG to Airflow EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "./dags/*"
+          target: "/opt/airflow/dags/" # Ruta del volumen de DAGs en tu Airflow
