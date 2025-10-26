@@ -6,8 +6,26 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Configuración de JAVA
 ENV JAVA_HOME=/usr
 ENV PATH=$JAVA_HOME/bin:$PATH
+
+# --- COMIENZO DEL BLOQUE DE INSTALACIÓN DE APACHE SPARK (FIX) ---
+# Definimos variables para simplificar la descarga y configuración
+ARG SPARK_VERSION=3.5.1
+ARG HADOOP_VERSION=3
+ARG SPARK_HOME_DIR=/usr/local/spark
+
+# Descargar, extraer y configurar Spark
+RUN wget -q "https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION.tgz" -O /tmp/spark.tgz && \
+    mkdir -p $SPARK_HOME_DIR && \
+    tar -xzf /tmp/spark.tgz --strip-components=1 -C $SPARK_HOME_DIR && \
+    rm /tmp/spark.tgz
+
+# Añadir SPARK_HOME y los binarios de Spark al PATH para que `spark-submit` funcione
+ENV SPARK_HOME=$SPARK_HOME_DIR
+ENV PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+# --- FIN DEL BLOQUE DE INSTALACIÓN DE APACHE SPARK (FIX) ---
 
 USER airflow
 ENV PATH="/home/airflow/.local/bin:$PATH"
@@ -16,6 +34,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
         apache-airflow==2.8.2 \
         apache-airflow-providers-apache-spark \
+        # 💡 AGREGADO: Dependencias para el flujo Kafka/API
+        requests \
+        kafka-python \
         apache-airflow-providers-airbyte \
         apache-airflow-providers-cncf-kubernetes \
+        # Mantenemos pyspark para las dependencias de código, aunque los binarios vienen de la instalación anterior.
         pyspark==3.5.1
